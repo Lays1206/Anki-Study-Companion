@@ -8,15 +8,15 @@ from PyQt6.QtWidgets import QApplication
 
 
 def main():
-    terms = load_terms("")
+    # terms = load_terms("vocab.csv")
 
-    anki = AnkiConnect()
-    existing_terms = anki.get_deck_words()
+    # anki = AnkiConnect()
+    # existing_terms = anki.get_deck_words()
 
-    new_terms = [ term for term in terms 
-                    if term not in existing_terms ]
+    # new_terms = [ term for term in terms 
+    #                if term not in existing_terms ]
     
-    print(f"Words not in deck: {len(new_terms)}")
+    # print(f"Words not in deck: {len(new_terms)}")
     
     # browser = Browser() 
     # browser.start()
@@ -28,7 +28,7 @@ def main():
     
     # browser.close()
 
-    db = Database("")
+    db = Database("data/sample.db")
 
     app = QApplication([])
 
