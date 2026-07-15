@@ -27,6 +27,24 @@ class Database:
         self.conn.commit()
 
 
+    def remove_word(self, word):
+        sql = 'DELETE FROM vocabulary WHERE reading = ?'
+        self.cursor.execute(sql, (word,))
+        self.conn.commit()
+
+
+    def get_all_words(self):
+        sql = 'SELECT id, reading, status, timestamp FROM vocabulary'
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+    
+    
+    def get_incomplete_words(self):
+        sql = 'SELECT reading FROM vocabulary WHERE status IN ("processing", "pending")'
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+
+
     def update_status(self, word, status):
         if status == "completed":
             sql = 'UPDATE vocabulary SET status = ? WHERE reading = ?'
@@ -43,11 +61,16 @@ class Database:
             self.cursor.execute(sql, ('pending', word))
             self.conn.commit()
 
-        else:
+        elif status == "processing":
             sql = 'UPDATE vocabulary SET status = ? WHERE reading = ?'
             self.cursor.execute(sql, ('processing', word))
             self.conn.commit()
-
+        
+        elif status == "already in deck":
+            sql = 'UPDATE vocabulary SET status = ? WHERE reading = ?'
+            self.cursor.execute(sql, ('already in deck', word))
+            self.conn.commit()
+            
 
     def close(self):
         self.conn.close()

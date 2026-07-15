@@ -1,44 +1,38 @@
-from data.csv_handler import load_terms
-from automation.browser import Browser
 from anki.anki_connect import AnkiConnect
 from data.database import Database
 from gui.main_window import MainWindow
 
 from PyQt6.QtWidgets import QApplication
+import os
+import sys
 
 
 def main():
-    # terms = load_terms("vocab.csv")
 
-    # anki = AnkiConnect()
-    # existing_terms = anki.get_deck_words()
-
-    # new_terms = [ term for term in terms 
-    #                if term not in existing_terms ]
+    if len(sys.argv) < 2:
+        print("Error: Please provide a file path.")
+        sys.exit()
     
-    # print(f"Words not in deck: {len(new_terms)}")
-    
-    # browser = Browser() 
-    # browser.start()
+    file_path = sys.argv[1]
 
-    # for i, term in enumerate(new_terms):
-    #    print(f"Processing {i+1}/{len(new_terms)}: {term}")
-    #    browser.word_search(term)
-    #    input("Press Enter to continue...")
-    
-    # browser.close()
+    if not os.path.exists(file_path):
+        print(f"Error: The path '{file_path}' does not exist.")
+        sys.exit()
 
-    db = Database("data/sample.db")
+    print(f"Successfully located file '{file_path}'! Setting up database...")
+    
+    db = Database(file_path)
+
+    anki = AnkiConnect()
 
     app = QApplication([])
 
-    window = MainWindow(db)
+    window = MainWindow(db, anki)
     window.show()
 
     app.exec()
 
     db.close()
-
 
 
 if __name__ == "__main__":
