@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setFixedSize(650, 550)
+        self.setFixedSize(700, 600)
     
         self.setWindowTitle("Anki Study Companion")
         self.setWindowIcon(QIcon("images\star.png"))
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         button_layout.addWidget(btn)
         btn.clicked.connect(self.activate_tab_2)
 
-        queue_widget = Queue(self.database)
+        queue_widget = Queue(self.database, self.anki)
         self.pages.addWidget(queue_widget)
 
         import_csv_widget.csv_imported.connect(queue_widget.load_rows)

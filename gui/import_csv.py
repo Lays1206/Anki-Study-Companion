@@ -1,9 +1,15 @@
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QFileDialog
+from PyQt6.QtWidgets import ( 
+    QApplication, QWidget, 
+    QPushButton, QLabel, 
+    QVBoxLayout, QHBoxLayout, 
+    QFileDialog, QProgressBar )
 from pathlib import Path
 
 from data.csv_handler import load_terms
 from automation.browser import Browser
+
+# Add a progress bar with label (eg. 1/230 complete)
 
 
 class ImportCSV(QWidget):
@@ -64,18 +70,36 @@ class ImportCSV(QWidget):
         self.current_term = QLabel("")
         self.current_term.setStyleSheet("font-size: 18px; font-weight: bold")
 
+        self.progress = QLabel("Progress:")
+        self.progress.setStyleSheet('font-size: 14px')
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setStyleSheet("""
+                                        QProgressBar { 
+                                            border: 1px solid #999999; 
+                                            text-align: center; 
+                                        }
+
+                                        QProgressBar::chunk { 
+                                            background-color: #4287f5; 
+                                            width: 10px; 
+                                            margin: 3px; 
+                                        }
+        """)
+        self.progress_bar.setFixedSize(210, 40)
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(10)
 
         self.skip_btn = QPushButton("Skip this word")
-        #self.skip_btn.setFixedSize(120, 30)
         self.skip_btn.setStyleSheet("font-size: 14px")
 
         self.skip_btn.clicked.connect(self.skip_word)
         self.skip_btn.setDisabled(True)
 
         self.complete_btn = QPushButton("Mark complete")
-        #self.complete_btn.setFixedSize(120, 30)
         self.complete_btn.setStyleSheet("font-size: 14px")
         
         self.complete_btn.clicked.connect(self.mark_complete)
@@ -92,6 +116,8 @@ class ImportCSV(QWidget):
         layout.addStretch()
 
         layout.addWidget(self.current_term, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout.addWidget(self.progress, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout.addWidget(self.progress_bar, alignment=Qt.AlignmentFlag.AlignHCenter)
 
         layout.addStretch()
         
@@ -130,7 +156,7 @@ class ImportCSV(QWidget):
         incomplete_terms = self.database.get_incomplete_words()
         for term in incomplete_terms:
             if term[0] not in existing_terms:
-                new_terms.append(term[0]) 
+                new_terms.append(term[0])
 
             else:
                 self.database.remove_word(term[0])
@@ -144,6 +170,7 @@ class ImportCSV(QWidget):
             self.browser.start()
 
             self.process_term()
+            self.display_progress()
             
             self.close_browser.setDisabled(False)
 
@@ -155,9 +182,16 @@ class ImportCSV(QWidget):
     def exit_browser(self):
         self.current_term.setText("")
         self.close_browser.setDisabled(True)
+        self.skip_btn.setDisabled(True)
+        self.complete_btn.setDisabled(True)
+
+        self.progress.setText("Progress:")
+        self.progress_bar.setValue(0)
+
+        QApplication.processEvents()
 
         self.browser.close()
-        
+
 
     # Handles word search and updating word status upon processing
     def process_term(self):
@@ -180,6 +214,20 @@ class ImportCSV(QWidget):
         self.complete_btn.setDisabled(False)
 
 
+    # Handles updating progress bar value and progress label text
+    def display_progress(self):
+        if self.current_index >= len(self.new_terms):
+            self.progress.setText("")
+            self.progress_bar.setValue(0)
+
+            return
+
+        progress = (self.current_index + 1) / len(self.new_terms)
+
+        self.progress.setText(f"Progress: {self.current_index + 1}/{len(self.new_terms)}")
+        self.progress_bar.setValue(int(progress * 100))
+
+
     # Skips a specific word and increments the positional index
     def skip_word(self):
         self.skip_btn.setDisabled(True)
@@ -191,6 +239,7 @@ class ImportCSV(QWidget):
         self.word_skipped.emit()
 
         self.process_term()
+        self.display_progress()
 
     
     # Marks a specific word for completeness and increments the positional index
@@ -204,5 +253,6 @@ class ImportCSV(QWidget):
         self.marked_complete.emit()
 
         self.process_term()
+        self.display_progress()
 
 

@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 
-
+    
 # Creates a single widget for individual rows in the database
 class QueueItem(QWidget):
     def __init__(self, row, index):
@@ -12,8 +12,11 @@ class QueueItem(QWidget):
 
         #index_label = QLabel(f"{index + 1}) ")
         reading_label = QLabel(self.reading)
+        reading_label.setFixedWidth(215)
         self.status_label = QLabel(self.status)
         timestamp_label = QLabel(self.timestamp)
+
+        self.setStyleSheet('QLabel{font-size: 14px}')
 
         #layout.addWidget(index_label)
         layout.addWidget(reading_label, alignment=Qt.AlignmentFlag.AlignLeft)
@@ -42,10 +45,11 @@ class QueueItem(QWidget):
 class Queue(QWidget):
     PAGE_SIZE = 10
 
-    def __init__(self, database):
+    def __init__(self, database, anki_connect):
         super().__init__()
 
         self.database = database
+        self.anki = anki_connect
         self.current_page = 0
         self.rows = []
         self.item_widgets = []
@@ -56,6 +60,9 @@ class Queue(QWidget):
     def initUI(self):
         self.layout = QVBoxLayout()
         self.btn_layout = QHBoxLayout()
+
+        self.refresh_btn = QPushButton("Refresh queue")
+        self.refresh_btn.clicked.connect(self.refresh_queue)
 
         label = QLabel("")
    
@@ -74,6 +81,8 @@ class Queue(QWidget):
         header_layout.addWidget(reading, alignment=Qt.AlignmentFlag.AlignHCenter)
         header_layout.addWidget(status, alignment=Qt.AlignmentFlag.AlignHCenter)
         header_layout.addWidget(timestamp, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        self.layout.addWidget(self.refresh_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
         
         self.layout.addLayout(header_layout)
 
@@ -97,6 +106,8 @@ class Queue(QWidget):
         self.layout.addLayout(self.btn_layout)
 
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.setContentsMargins(10, 0, 0, 0)
+        self.layout.setSpacing(10)
         self.setLayout(self.layout)
 
         self.load_rows()
@@ -105,6 +116,7 @@ class Queue(QWidget):
     def load_rows(self):
         self.rows = self.database.get_all_words()
         self.render_page()
+
     
     # Handles re-rendering the page for each page update
     def render_page(self):
@@ -137,4 +149,31 @@ class Queue(QWidget):
         if (self.current_page + 1) * self.PAGE_SIZE < len(self.rows):
             self.current_page += 1
             self.render_page()
+
+    
+    def refresh_queue(self):
+        self.refresh_btn.setText("Refreshing...")
+        self.refresh_btn.setDisabled(True)
+
+        QApplication.processEvents()
+
+        self.check_queue()
+
+        self.refresh_btn.setText("Refresh queue")
+        self.refresh_btn.setDisabled(False)
+
+
+    def check_queue(self):
+        existing_terms = self.anki.get_deck_words()
+
+        incomplete_terms = self.database.get_incomplete_words()
+        for term in incomplete_terms:
+            if term[0] in existing_terms:
+                self.database.remove_word(term[0])
+        
+        self.load_rows()
+        
+    
+
+        
 

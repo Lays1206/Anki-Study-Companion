@@ -14,7 +14,7 @@ class Database:
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS vocabulary (
                 id INTEGER PRIMARY KEY,
-                reading TEXT NOT NULL,
+                reading TEXT NOT NULL UNIQUE,
                 status TEXT DEFAULT 'pending',
                 timestamp TEXT DEFAULT CURRENT_TIMESTAMP
             );""")
@@ -22,9 +22,12 @@ class Database:
 
 
     def add_word(self, word):
-        sql = 'INSERT INTO vocabulary (reading) VALUES (?)'
-        self.cursor.execute(sql, (word,))
-        self.conn.commit()
+        try:
+            sql = 'INSERT INTO vocabulary (reading) VALUES (?)'
+            self.cursor.execute(sql, (word,))
+            self.conn.commit()
+        except sqlite3.IntegrityError:
+            pass
 
 
     def remove_word(self, word):
@@ -40,7 +43,7 @@ class Database:
     
     
     def get_incomplete_words(self):
-        sql = 'SELECT reading FROM vocabulary WHERE status IN ("processing", "pending")'
+        sql = 'SELECT reading FROM vocabulary WHERE status IN ("processing", "pending", "skipped")'
         self.cursor.execute(sql)
         return self.cursor.fetchall()
 
