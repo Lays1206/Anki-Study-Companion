@@ -9,8 +9,6 @@ from pathlib import Path
 from data.csv_handler import load_terms
 from automation.browser import Browser
 
-# Add a progress bar with label (eg. 1/230 complete)
-
 
 class ImportCSV(QWidget):
     csv_imported = pyqtSignal()
@@ -33,20 +31,18 @@ class ImportCSV(QWidget):
         self.btn.setFixedSize(120, 30)
         self.btn.setStyleSheet("""
                                QPushButton#import {
-                                font-size: 14px; 
-                                font-weight: normal; 
-                                border: none;
-                                border-radius: 3px;
-                                background-color: #ebedeb;
-                                color: #222;
-                        
+                                    font-size: 14px; 
+                                    font-weight: normal; 
+                                    border: none;
+                                    border-radius: 3px;
+                                    background-color: #ebedeb;
+                                    color: #222;
                                }
 
                                QPushButton#import:disabled {
-                                background-color: rgba(225, 227, 225, 100);
-                                color: rgba(34, 34, 34, 80);
+                                    background-color: rgba(225, 227, 225, 100);
+                                    color: rgba(34, 34, 34, 80);
                                }
-
                           """)
         
         self.btn.clicked.connect(self.open_file)
@@ -59,13 +55,16 @@ class ImportCSV(QWidget):
         self.init_browser = QPushButton("Start word queue")
         self.init_browser.clicked.connect(self.open_browser)
 
-        browser_btn_layout.addWidget(self.init_browser, alignment=Qt.AlignmentFlag.AlignHCenter)
+        browser_btn_layout.addWidget(self.init_browser)
         
         self.close_browser = QPushButton("Close browser")
         self.close_browser.setDisabled(True)
         self.close_browser.clicked.connect(self.exit_browser)
 
-        browser_btn_layout.addWidget(self.close_browser, alignment=Qt.AlignmentFlag.AlignHCenter)
+        browser_btn_layout.addWidget(self.close_browser)
+
+        browser_btn_layout.setContentsMargins(160, 0, 160, 0)
+        browser_btn_layout.setSpacing(40)
 
         self.current_term = QLabel("")
         self.current_term.setStyleSheet("font-size: 18px; font-weight: bold")
@@ -83,7 +82,7 @@ class ImportCSV(QWidget):
                                         QProgressBar::chunk { 
                                             background-color: #4287f5; 
                                             width: 10px; 
-                                            margin: 3px; 
+                                            margin: 2.5px; 
                                         }
         """)
         self.progress_bar.setFixedSize(210, 40)
@@ -91,17 +90,22 @@ class ImportCSV(QWidget):
         self.progress_bar.setValue(0)
 
         btn_layout = QHBoxLayout()
-        btn_layout.setSpacing(10)
+        btn_layout.setSpacing(50)
 
         self.skip_btn = QPushButton("Skip this word")
         self.skip_btn.setStyleSheet("font-size: 14px")
+        self.skip_btn.setToolTip("Shortcut key: 1")
+        self.skip_btn.setShortcut("1")
 
+        
         self.skip_btn.clicked.connect(self.skip_word)
         self.skip_btn.setDisabled(True)
 
         self.complete_btn = QPushButton("Mark complete")
         self.complete_btn.setStyleSheet("font-size: 14px")
-        
+        self.complete_btn.setToolTip("Shortcut key: 2")
+        self.complete_btn.setShortcut("2")
+    
         self.complete_btn.clicked.connect(self.mark_complete)
         self.complete_btn.setDisabled(True)
 
@@ -123,7 +127,7 @@ class ImportCSV(QWidget):
         
         layout.addLayout(btn_layout)
 
-        layout.setContentsMargins(20, 20, 20, 50)
+        layout.setContentsMargins(20, 40, 20, 50)
         layout.setSpacing(10)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -132,10 +136,13 @@ class ImportCSV(QWidget):
 
     # Handles CSV file uploads and emits a signal to the queue
     def open_file(self):
-        self.load_status.setText("Accessing files...")
+        self.load_status.setText("Opening files...")
+        self.file_label.setText("")
         file_path, _ = QFileDialog.getOpenFileName(self, "Open CSV File", "", "CSV Files (*csv)")
 
         if file_path:
+            self.load_status.setText("Parsing file...")
+            QApplication.processEvents()
             terms = load_terms(file_path)
             for term in terms:
                 self.database.add_word(term) 
@@ -144,16 +151,23 @@ class ImportCSV(QWidget):
 
             self.file_label.setText(f"You have successfully uploaded '{Path(file_path).name}'")
             self.csv_imported.emit()
+        
+        else:
+            self.load_status.setText("")
 
     
     # Handles browser initialization and removes unneeded words from database
     def open_browser(self):
-        existing_terms = self.anki.get_deck_words()
+        self.current_term.setText("Searching for new words...")
+        QApplication.processEvents()
+
+        existing_terms = self.anki.get_deck_words("current")
 
         self.current_index = 0
 
         new_terms = []
         incomplete_terms = self.database.get_incomplete_words()
+
         for term in incomplete_terms:
             if term[0] not in existing_terms:
                 new_terms.append(term[0])
@@ -161,7 +175,7 @@ class ImportCSV(QWidget):
             else:
                 self.database.remove_word(term[0])
             
-            self.words_checked.emit()
+        self.words_checked.emit()
         
         self.new_terms = new_terms 
 
@@ -204,10 +218,10 @@ class ImportCSV(QWidget):
             return
 
         term = self.new_terms[self.current_index]
+        self.current_term.setText(f"Current term: {term}")
 
         self.database.update_status(term, 'processing')
 
-        self.current_term.setText(f"Current term: {term}")
         self.browser.word_search(term)
 
         self.skip_btn.setDisabled(False)

@@ -5,21 +5,22 @@ from gui.main_window import MainWindow
 from PyQt6.QtWidgets import QApplication
 import os
 import sys
+import time
 
 
 def main():
 
     if len(sys.argv) < 2:
-        print("Error: Please provide a file path.")
+        print("[ERROR] Please provide a file path.")
         sys.exit()
     
     file_path = sys.argv[1]
 
     if not os.path.exists(file_path):
-        print(f"Error: The path '{file_path}' does not exist.")
+        print(f"[ERROR] The path '{file_path}' does not exist.")
         sys.exit()
 
-    print(f"Successfully located file '{file_path}'! Setting up database...")
+    print(f"[SUCCESS] Located file '{file_path}'! Setting up database...")
     
     db = Database(file_path)
 
@@ -27,7 +28,11 @@ def main():
 
     app = QApplication([])
 
-    window = MainWindow(db, anki)
+    time.sleep(5)
+    print("[PLEASE WAIT] Loading main window...")
+
+    window = MainWindow(db, anki, "Vocabulary") # Enter deck name 
+    
     window.show()
 
     app.exec()

@@ -7,30 +7,26 @@ class AnkiConnect:
         self.url = 'http://localhost:8765'
 
 
-    def get_deck_words(self):
-
-        payload= {
-            "action": "findNotes",
-            "version": 5,
-            "params": {
-            "query": "deck:current"
-            }
-        }
-
-        response = requests.post(self.url, json=payload)
-        note_ids = response.json()["result"]
-
+    def invoke(self, action, **params):
         payload = {
-            "action": "notesInfo",
-            "version": 5,
-            "params": {
-            "notes": note_ids
-            }
+            "action": action,
+            "version": 6,
+            "params": params
         }
 
-        response = requests.post(self.url, json=payload)
-        notes = response.json()["result"]
+        response = requests.get(self.url, json=payload).json()
 
+        if response.get("error") is not None:
+            raise Exception(response["error"])
+
+        else:
+            return response["result"]
+        
+
+    def get_deck_words(self, deck_name):
+        note_ids = self.invoke("findNotes", query=f"deck:{deck_name}")  
+        notes = self.invoke("notesInfo", notes=note_ids)
+    
         words = []
 
         for note in notes:
@@ -38,4 +34,22 @@ class AnkiConnect:
             words.append(word)
         
         return words
+
+
+    def deck_names_ids(self):
+        return self.invoke("deckNamesAndIds")
+
+
+    def word_reviews_today(self):
+        return self.invoke("getNumCardsReviewedToday")
+
+
+    def deck_stats(self, deck_names):
+        return self.invoke("getDeckStats", decks=deck_names)
+
+
+    def card_reviews(self, deck_name, start_id):
+       return self.invoke("cardReviews", deck=deck_name, startID=start_id)
+
+
 

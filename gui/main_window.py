@@ -11,24 +11,26 @@ from PyQt6.QtWidgets import (
 from .import_csv import ImportCSV
 from .queue import Queue
 from .statistics import Statistics
+
+from analytics.analytics import Analytics
  
 
 class MainWindow(QMainWindow):
-    def __init__(self, database, anki_connect):
+    def __init__(self, database, anki_connect, deck_name):
         super().__init__()
 
         self.database = database
         self.anki = anki_connect
+        self.deck_name = deck_name
+        self.analytics = Analytics(self.database, self.anki, self.deck_name)
 
         self.center()
 
         self.initUI()
 
     def initUI(self):
-        self.setFixedSize(700, 600)
-    
         self.setWindowTitle("Anki Study Companion")
-        self.setWindowIcon(QIcon("images\star.png"))
+        self.setWindowIcon(QIcon("images\icon.png"))
 
         page_layout = QVBoxLayout()
         button_layout = QHBoxLayout()
@@ -51,7 +53,7 @@ class MainWindow(QMainWindow):
         button_layout.addWidget(btn)
         btn.clicked.connect(self.activate_tab_2)
 
-        queue_widget = Queue(self.database, self.anki)
+        queue_widget = Queue(self.database, self.anki, self.deck_name)
         self.pages.addWidget(queue_widget)
 
         import_csv_widget.csv_imported.connect(queue_widget.load_rows)
@@ -65,7 +67,7 @@ class MainWindow(QMainWindow):
         btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         button_layout.addWidget(btn)
         btn.clicked.connect(self.activate_tab_3)
-        self.pages.addWidget(Statistics())
+        self.pages.addWidget(Statistics(self.analytics))
 
         button_layout.setSpacing(0)
         button_layout.setContentsMargins(0, 0, 0, 0)
@@ -82,41 +84,47 @@ class MainWindow(QMainWindow):
 
         widget.setStyleSheet("""
                              #container {
-                              background-color: #2b2b2b;
-                              color: #b0b0b0;
+                                background-color: #2b2b2b;
+                                color: #b0b0b0;
                             }
             
                              QPushButton#button1,
                              QPushButton#button2,
                              QPushButton#button3 {
-                              color: #e0e0e0;
-                              font-size: 12px;
-                              font-weight: bold;
-                              border: 1px solid #4287f5;
-                              border-radius: 0px;
-                              background-color: #4287f5;
-                              padding: 5px;
-                              min-height: 20px;
-                              max-height: 20px;
+                                color: #e0e0e0;
+                                font-size: 12px;
+                                font-weight: bold;
+                                border: 1px solid #4287f5;
+                                border-radius: 0px;
+                                background-color: #4287f5;
+                                padding: 5px;
+                                min-height: 20px;
+                                max-height: 20px;
                             }
                              
                             QPushButton#button1 {
-                              border-bottom-left-radius: 5px;
+                                border-bottom-left-radius: 5px;
                             }
                             
                             QPushButton#button3 {
-                              border-bottom-right-radius: 5px;
+                                border-bottom-right-radius: 5px;
                             }
                             
                             QPushButton#button1:hover,
                             QPushButton#button2:hover,
                             QPushButton#button3:hover {
-                              border: 1px solid #346bc2;
+                                border: 1px solid #346bc2;
                             }
       
                             QLabel {
-                             color: #b0b0b0;
-                            }                                                
+                                color: #b0b0b0;
+                            }
+                                
+                            QToolTip {
+                                font-size: 8pt; 
+                                height: 10px;
+                                width: 10px;
+                            }                                            
                             """)
 
         self.setCentralWidget(widget)

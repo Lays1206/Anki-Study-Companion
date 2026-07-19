@@ -37,13 +37,19 @@ class Database:
 
 
     def get_all_words(self):
-        sql = 'SELECT id, reading, status, timestamp FROM vocabulary'
+        sql = 'SELECT id, reading, status, datetime(timestamp, "localtime") FROM vocabulary'
         self.cursor.execute(sql)
         return self.cursor.fetchall()
     
     
     def get_incomplete_words(self):
         sql = 'SELECT reading FROM vocabulary WHERE status IN ("processing", "pending", "skipped")'
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+
+
+    def get_complete_words(self):
+        sql = 'SELECT reading from vocabulary WHERE status IN ("completed")'
         self.cursor.execute(sql)
         return self.cursor.fetchall()
 
