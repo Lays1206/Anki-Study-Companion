@@ -12,7 +12,7 @@ class Browser:
         options = Options()
 
         # Add path to firefox profile with yomitan extension installed
-        profile_path = r"C:\Users\layla\AppData\Roaming\Mozilla\Firefox\Profiles\xs8kkyn2.default-release"
+        profile_path = r"ENTER YOUR PROFILE"
         options.add_argument(f"-profile={profile_path}")
 
         self.driver = webdriver.Firefox(options=options)
