@@ -31,7 +31,7 @@ def main():
     time.sleep(5)
     print("[PLEASE WAIT] Loading main window...")
 
-    window = MainWindow(db, anki, "Vocabulary") # Enter deck name 
+    window = MainWindow(db, anki, "ENTER DECK NAME") # Enter deck name 
     
     window.show()
 
