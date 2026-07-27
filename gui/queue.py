@@ -36,7 +36,6 @@ class QueueItem(QWidget):
 
         layout = QHBoxLayout()
 
-        #index_label = QLabel(f"{index + 1}) ")
         reading_label = QLabel(self.reading)
         reading_label.setFixedWidth(130)
         reading_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -48,7 +47,6 @@ class QueueItem(QWidget):
 
         self.setStyleSheet("""QLabel {font-size: 14px}""")
 
-        #layout.addWidget(index_label)
         layout.addWidget(reading_label, alignment=Qt.AlignmentFlag.AlignLeft)
         layout.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignHCenter)
         layout.addWidget(timestamp_label, alignment=Qt.AlignmentFlag.AlignHCenter)
@@ -193,7 +191,7 @@ class Queue(QWidget):
         page_rows = self.rows[start:end]
 
         for row in page_rows:
-            item = QueueItem(row, self.database) # Will later implement item numbering
+            item = QueueItem(row, self.database)
             item.word_deleted.connect(self.load_rows)
             self.items_layout.addWidget(item)
             self.item_widgets.append(item)
