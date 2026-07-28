@@ -6,18 +6,18 @@
 <details>
     <summary>Tables of Contents</summary>
     <ol>
-        <li><a href="#about-the-project">About The Project</a></li>
+        <li><a href="#about-the-project-">About The Project</a></li>
         <ul>
-            <li><a href="#built-with">Built With</a></li>
+            <li><a href="#built-with-">Built With</a></li>
         </ul>
-        <li><a href="#getting-started">Getting Started</a></li>
+        <li><a href="#getting-started-">Getting Started</a></li>
         <ul>
             <li><a href="#prerequisites">Prerequisites</a></li>
             <li><a href="#installation">Installation</a></li>
         </ul>
-        <li><a href="#usage">Usage</a></li>
-        <li><a href="#what-i-learned">What I Learned</a></li>
-        <li><a href="#future-improvements">Future Improvements</a></li>
+        <li><a href="#usage-">Usage</a></li>
+        <li><a href="#what-i-learned-">What I Learned</a></li>
+        <li><a href="#future-improvements-">Future Improvements</a></li>
     </ol>
 </details>
 
