@@ -13,12 +13,6 @@ def main():
     if len(sys.argv) < 2:
         print("[ERROR] Please provide a file path.")
         sys.exit()
-    
-    file_path = sys.argv[1]
-
-    if not os.path.exists(file_path):
-        print(f"[ERROR] The path '{file_path}' does not exist.")
-        sys.exit()
 
     print(f"[SUCCESS] Located file '{file_path}'! Setting up database...")
     
