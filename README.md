@@ -28,9 +28,9 @@
     <img src="images/screenshot.png" alt="project screenshot" width="50%" height="50%">
 </div>
 
-**Anki Study Companion** is a PyQt6 desktop tool that automates vocabulary card creation for Japanese language learners. Users upload a CSV of vocabulary and the app drives an automated browser session *(powered by the Yomitan browswer extension)* that looks up each word on a sentence-search site, eliminating the need to search for each word manually.
+**Anki Study Companion** is a PyQt6 desktop tool that automates vocabulary card creation for Japanese language learners. Users upload a CSV of vocabulary and the app drives an automated browser session *(powered by the Yomitan browser extension)* that looks up each word on a sentence-search site, eliminating the need to search for each word manually.
 
-Beyond its automation, the app includes a persistent, queue-based tracking system *(built on SQLite)* so users can moniter which words are pending, in progress, completed, or skipped across sessions, along with a statistics dashboard that visualizes review accuracy, streaks, and deck stats over time.
+Beyond its automation, the app includes a persistent, queue-based tracking system *(built on SQLite)* so users can monitor which words are pending, in progress, completed, or skipped across sessions, along with a statistics dashboard that visualizes review accuracy, streaks, and deck stats over time.
 
 Many language learners track new vocabulary in spreadsheets, however, I've found that this manual process is often slow, disconnected, and distracts learners from meaningful study. So, I've created this tool to close that gap: turning a simple word list into ready-to-study Anki cards with minimal manual effort, while giving learners visible insight into their study progress as they go.
 
@@ -123,7 +123,7 @@ py main.py data/your_database_file.db
 ## Usage 📑
 
 <img src="images/browser_init.png" alt="Browser initalization" style="display: block; margin: 0 auto" > </br>
-The image above demonstrates a CSV import and browser instance initalizing in the import tab. This will go through the process of checking words in the database against words already in the user's chosen Anki deck. If unadded terms exist in the database, then the driver will open an automated instance of Firefox in a separate window. If any terms in an uploaded file already exist in the chosen deck, the browser initalization automatically removes them from the database and updates the queue.
+The image above demonstrates a CSV import and browser instance initializing in the import tab. This will go through the process of checking words in the database against words already in the user's chosen Anki deck. If unadded terms exist in the database, then the driver will open an automated instance of Firefox in a separate window. If any terms in an uploaded file already exist in the chosen deck, the browser initialization automatically removes them from the database and updates the queue.
 
 <img src="images/sentence_search.png" alt="Sentence search site" width=50% height=50% style="display: block; margin: 0 auto"> </br>
 In this split-screen display, notice the progress bar indicating the user's progress in the queue and the sentence search's returned results for the current term. Keep in mind, not all words will return sentence results, as these sites have only a select few resources to pull from.
@@ -135,7 +135,7 @@ In this split-screen display, notice the progress bar indicating the user's prog
 When a browser session is closed, the progress bar will reset to zero. But, in the case that all words in the queue are either skipped or completed during a session, the screen will display the `All done!` text.
 
 <img src="images/screenshot.png" alt="Queue tab" width=50% height=50% style="display: block; margin: 0 auto"> </br>
-In the queue tab, pages will display at most 10 terms with accompanying columns for status and date added, as well as an optional button for dynamically removing words from the database/queue. In addition to when the browser is initalized, the queue can manually be refreshed after a file upload to remove already existing terms. Another feature showcased here is the `Mark all as in progress` button, which resets the status of all terms in the database/queue, so be mindful when performing this action.
+In the queue tab, pages will display at most 10 terms with accompanying columns for status and date added, as well as an optional button for dynamically removing words from the database/queue. In addition to when the browser is initialized, the queue can manually be refreshed after a file upload to remove already existing terms. Another feature showcased here is the `Mark all as in progress` button, which resets the status of all terms in the database/queue, so be mindful when performing this action.
 
 <img src="images/stats.png" alt="Statistics tab" width=50% height=50% style="display: block; margin: 0 auto"> </br>
 On the statistics display, users can view their total number of reviews, a daily-updated review streak, a breakdown of weekly/month reviews and average review time/accuracy, as well as deck composition stats. Also, take note of the queue completion rate at the bottom of the tab: this computes the percentage ratio of words completed in the queue vs. its total.
