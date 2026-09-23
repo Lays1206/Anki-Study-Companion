@@ -14,7 +14,12 @@ def main():
         print("[ERROR] Please provide a file path.")
         sys.exit()
 
-    print(f"[SUCCESS] Located file '{file_path}'! Setting up database...")
+    file_path = sys.argv[1]
+
+    if os.path.isfile(file_path):
+        print(f"[SUCCESS] Located file '{file_path}'! Setting up database...")
+    else:
+        print(f"[INFO] File '{file_path}' not found. Creating new database...")
     
     db = Database(file_path)
 
