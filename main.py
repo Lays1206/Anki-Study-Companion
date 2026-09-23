@@ -28,7 +28,7 @@ def main():
     app = QApplication([])
 
     time.sleep(5)
-    print("[PLEASE WAIT] Loading main window...")
+    print("Please wait! Loading main window...")
 
     window = MainWindow(db, anki, "ENTER DECK NAME") # Enter deck name 
     

@@ -2,6 +2,8 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QApplication, QScrollArea, QDialog, QDialogButtonBox, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 
+
+# Pop-up dialogue for word deletion and status resets
 class ResetDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -11,7 +13,7 @@ class ResetDialog(QDialog):
         )
 
         self.setWindowTitle(" ")
-        self.setWindowIcon(QIcon("images\warning.png"))
+        self.setWindowIcon(QIcon("images/warning.png"))
 
         self.button_box = QDialogButtonBox(options)
         self.button_box.accepted.connect(self.accept)
@@ -71,8 +73,10 @@ class QueueItem(QWidget):
 
     
     def delete_word(self):
-        self.database.remove_word(self.reading)
-        self.word_deleted.emit()
+        dlg = ResetDialog()
+        if dlg.exec():
+            self.database.remove_word(self.reading)
+            self.word_deleted.emit()
 
 
 # Queue containing all queue widgets
@@ -174,12 +178,14 @@ class Queue(QWidget):
         self.load_rows()
     
 
+    # Entry point for page rendering
+    # Fetches all words in database
     def load_rows(self):
         self.rows = self.database.get_all_words()
         self.render_page()
 
     
-    # Handles re-rendering the page for each page update
+    # Handles initial page rendering and re-rendering for queue updates
     def render_page(self):
         for widget in self.item_widgets:
             self.items_layout.removeWidget(widget)
@@ -213,20 +219,24 @@ class Queue(QWidget):
             self.render_page()
     
 
+    # Entry point for queue refresh
+    # Will print error if Anki desktop is no longer open
     def refresh_queue(self):
         self.refresh_btn.setText("Refreshing...")
         self.refresh_btn.setDisabled(True)
 
         QApplication.processEvents()
 
-        self.check_queue()
+        try:
+            self.check_queue()
+        except Exception as e:
+            print(f"[ERROR] Failed to refresh queue: {e}")
+        finally:
+            self.refresh_btn.setText("Refresh queue")
+            self.refresh_btn.setDisabled(False)
 
-        self.rows = self.database.get_all_words()
 
-        self.refresh_btn.setText("Refresh queue")
-        self.refresh_btn.setDisabled(False)
-
-
+    # Resets status of words in queue to 'pending'
     def reset_queue(self):
         dlg = ResetDialog()
         if dlg.exec():
@@ -244,6 +254,8 @@ class Queue(QWidget):
             self.reset_btn.setDisabled(False)
 
 
+    # Checks existing words in deck vs. words in current queue
+    # Refreshes rows if word already in deck
     def check_queue(self):
         existing_terms = self.anki.get_deck_words(self.deck_name)
 
@@ -251,6 +263,8 @@ class Queue(QWidget):
         for term in incomplete_terms:
             if term[0] in existing_terms:
                 self.database.remove_word(term[0])
+
+        self.load_rows()
 
     
 
